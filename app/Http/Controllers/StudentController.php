@@ -27,7 +27,7 @@ class StudentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'registration_number' => 'required|unique:students' // Check for uniqueness
+            'registration_number' => 'required|unique:students' // unique:table_name
         ]);
 
         if ($validator->fails()) {
@@ -46,9 +46,7 @@ class StudentController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show($id)
     {
         $product = Student::find($id);
@@ -65,9 +63,7 @@ class StudentController extends Controller
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function update(Request $request, Student $student)
     {
         $validator = Validator::make($request->all(), [
@@ -88,9 +84,6 @@ class StudentController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Student $student)
     {
         $student->delete();
