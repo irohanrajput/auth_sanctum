@@ -57,11 +57,38 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        return response()->json(
-            ['message' => 'User registered successfully', 'user' => $user],
-            201
-        );
+        $token = $user->createToken($request->username);
+
+        return response()->json(['message' => 'User registered successfully', 'user' => $user, 'Authorization Bearer' => $token->plainTextToken], 201);
+      
     }
 
-    
+    public function loginUser(Request $request){
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|exists:users',
+            'password' => 'required|string|min:6|',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = User::where('username', $request->username)->first();
+
+        if ($user && password_verify($request->password, $user->password)) {
+            $token = $user->createToken($request->username);
+            return response()->json(['message' => 'User logged in successfully', 'user' => $user, 'Authorization Bearer' => $token->plainTextToken], 200);
+        } else {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+        
+    }
+
+    public function logoutUser(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        return response()->json(['message' => 'User logged out successfully'], 200);
+    }
+
+
 }
